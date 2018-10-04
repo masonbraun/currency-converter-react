@@ -1,12 +1,36 @@
+import axios from 'axios';
+
 export const REQUEST_POSTS = 'REQUEST_POSTS';
 export const RECEIVE_POSTS = 'RECEIVE_POSTS';
 export const SELECT_SUBREDDIT = 'SELECT_SUBREDDIT';
 export const INVALIDATE_SUBREDDIT = 'INVALIDATE_SUBREDDIT';
 
-// export const selectSubreddit = subreddit => ({
-//   type: SELECT_SUBREDDIT,
-//   subreddit
-// });
+export const alertText = text => ({
+  type: 'UPDATE_TEXT',
+  text: text
+});
+
+export const updateCurrency = payload => ({
+  type: 'UPDATE_CURRENCY',
+  currency: payload.currency
+});
+
+//GENERIC ASYNC ACTION
+
+export const getData = text => dispatch => {
+  console.log(text);
+  axios
+    .get('https://frankfurter.app/latest?from=GBP&to=USD')
+    .then(response => {
+      console.log(response);
+      dispatch(
+        updateCurrency({
+          currency: response.data
+        })
+      );
+    })
+    .catch(error => error);
+};
 
 // export const invalidateSubreddit = subreddit => ({
 //   type: INVALIDATE_SUBREDDIT,

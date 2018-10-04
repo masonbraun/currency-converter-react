@@ -1,14 +1,23 @@
 import { combineReducers } from 'redux';
-import { SELECT_SUBREDDIT, INVALIDATE_SUBREDDIT, REQUEST_POSTS, RECEIVE_POSTS } from './actions.js';
+import { INVALIDATE_SUBREDDIT, REQUEST_POSTS, RECEIVE_POSTS } from './actions.js';
 
-// const selectedSubreddit = (state = 'reactjs', action) => {
-//   switch (action.type) {
-//     case SELECT_SUBREDDIT:
-//       return action.subreddit;
-//     default:
-//       return state;
-//   }
-// };
+const text = (state = 'default', action) => {
+  switch (action.type) {
+    case 'UPDATE_TEXT':
+      return action.text;
+    default:
+      return state;
+  }
+};
+
+const currency = (state = {}, action) => {
+  switch (action.type) {
+    case 'UPDATE_CURRENCY':
+      return action.currency;
+    default:
+      return state;
+  }
+};
 
 const posts = (
   state = {
@@ -58,23 +67,13 @@ const posts = (
 
 // };
 
-// const fuckingState = (state = 1) => {
-//   switch (action.type) {
-//     case REQUEST_POSTS:
-//       return {
-//         ...state,
-//         [action.subreddit]: posts(state[action.subreddit], action)
-//       };
-//     default:
-//       return state;
-//   }
-// };
-
 const rootReducer = combineReducers({
   // postsBySubreddit,
   // selectedSubreddit
   // fuckingState
-  posts
+  posts,
+  text,
+  currency
 });
 
 export default rootReducer;

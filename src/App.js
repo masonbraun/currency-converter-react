@@ -1,14 +1,16 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
+import { alertText, getData } from './store/actions.js';
 
 //assets
-import logo from './logo.svg';
+import logo from './assets/images/logo.svg';
 import './App.scss';
 
 class App extends Component {
   static propTypes = {
     posts: PropTypes.object.isRequired
+    // dispatch: PropTypes.func.isRequired
   };
   constructor(props) {
     super(props);
@@ -16,13 +18,18 @@ class App extends Component {
       date: new Date(),
       billy: 'wassup'
     };
+    // this.handleClick = this.handleClick.bind(this);
   }
   componentDidMount() {
-    // alert('BITCH');
+    // const { dispatch, selectedSubreddit } = this.props;
+    // dispatch(fetchPostsIfNeeded(selectedSubreddit));
+    // const { dispatch } = this.props;
+    this.props.alertText('MOUTNED');
   }
-  handleClick() {
-    alert('Click happened');
-  }
+  handleClick = () => {
+    this.props.alertText('wassup to');
+    this.props.getData();
+  };
   render() {
     return (
       <div className="App">
@@ -45,6 +52,11 @@ class App extends Component {
   }
 }
 
+const mapDispatchToProps = {
+  getData,
+  alertText: value => alertText(value)
+};
+
 const mapStateToProps = state => {
   // const { selectedSubreddit, postsBySubreddit } = state;
   // const { isFetching, lastUpdated, items: posts } = postsBySubreddit[selectedSubreddit] || {
@@ -62,4 +74,7 @@ const mapStateToProps = state => {
   };
 };
 
-export default connect(mapStateToProps)(App);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(App);
