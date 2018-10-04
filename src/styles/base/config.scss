@@ -1,0 +1,20 @@
+html {
+  box-sizing: border-box;
+}
+
+*,
+*:before,
+*:after {
+  box-sizing: inherit;
+}
+
+a {
+  text-decoration: none;
+}
+
+:root {
+  //colors
+  --red: red;
+  //fonts
+  --dank-mono: 'Dank Mono';
+}
