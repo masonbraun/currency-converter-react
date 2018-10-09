@@ -15,7 +15,7 @@ import reducer from './store/reducers.js';
 
 //styles
 
-import './styles/index.scss';
+// import './styles/app.scss';
 
 // import App from './App';
 

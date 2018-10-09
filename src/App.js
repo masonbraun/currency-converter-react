@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { alertText, getData } from './store/actions.js';
-import { HashRouter as Router, Route } from 'react-router-dom';
+import { Route } from 'react-router-dom';
 
 //components
 
@@ -15,6 +15,7 @@ import About from './views/About';
 //assets
 import logo from './assets/images/logo.svg';
 // import './App.scss';
+import './styles/app.scss';
 
 class App extends Component {
   static propTypes = {
@@ -41,7 +42,7 @@ class App extends Component {
   };
   render() {
     return (
-      <main className="App">
+      <main className="app">
         <Header />
         <header className="App-header">
           <p>i want this on every page</p>

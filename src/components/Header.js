@@ -1,23 +1,24 @@
 import React from 'react';
-import PropTypes from 'prop-types';
-import { Link, NavLink } from 'react-router-dom';
+import { NavLink } from 'react-router-dom';
 
-const Header = ({ username }) => {
+const Header = () => {
   return (
     <header className="header">
-      <ul>
-        <li>
-          <NavLink to="/">Home</NavLink>
-          <NavLink to="/about">About</NavLink>
-        </li>
-      </ul>
+      <h1>Site Name</h1>
+      <nav className="navigation">
+        <ul>
+          <li>
+            <NavLink exact to="/">
+              Home
+            </NavLink>
+            <NavLink exact to="/about">
+              About
+            </NavLink>
+          </li>
+        </ul>
+      </nav>
     </header>
   );
-};
-
-Header.propTypes = {
-  // username: PropTypes.string.isRequired
-  username: PropTypes.string
 };
 
 export default Header;

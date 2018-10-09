@@ -1,0 +1,19 @@
+//global
+
+@import 'base/reset';
+@import 'base/fonts';
+@import 'base/config';
+
+//views
+
+@import 'views/home';
+
+//components
+
+@import 'components/header';
+
+.app {
+  width: 100%;
+  max-width: 1024px;
+  margin: 0 auto;
+}
