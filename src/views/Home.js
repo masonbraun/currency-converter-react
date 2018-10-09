@@ -1,22 +1,17 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { alertText, getData } from './store/actions.js';
-import { HashRouter as Router, Route } from 'react-router-dom';
+import { alertText, getData } from '../store/actions.js';
 
 //components
 
-import Functional from './components/Functional';
-import Header from './components/Header';
-
-import Home from './views/Home';
-import About from './views/About';
+import Functional from '../components/Functional';
 
 //assets
-import logo from './assets/images/logo.svg';
-// import './App.scss';
+import logo from '../assets/images/logo.svg';
+// import '../App.scss';
 
-class App extends Component {
+class Home extends Component {
   static propTypes = {
     posts: PropTypes.object.isRequired
     // dispatch: PropTypes.func.isRequired
@@ -40,18 +35,7 @@ class App extends Component {
     this.props.getData();
   };
   render() {
-    return (
-      <main className="App">
-        <Header />
-        <header className="App-header">
-          <p>i want this on every page</p>
-          <Functional username="mason" />
-          <img src={logo} className="App-logo" alt="logo" onClick={this.handleClick} />
-        </header>
-        <Route exact path="/" component={Home} />
-        <Route path="/about" component={About} />
-      </main>
-    );
+    return <section className="home">HOME VIEW</section>;
   }
 }
 
@@ -80,4 +64,4 @@ const mapStateToProps = state => {
 export default connect(
   mapStateToProps,
   mapDispatchToProps
-)(App);
+)(Home);

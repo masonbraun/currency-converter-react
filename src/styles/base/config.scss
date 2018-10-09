@@ -1,5 +1,7 @@
 html {
   box-sizing: border-box;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 *,
@@ -18,3 +20,6 @@ a {
   //fonts
   --dank-mono: 'Dank Mono';
 }
+
+// git remote add origin git@github.com:masonbraun/currency-converter-react.git
+// git push -u origin master

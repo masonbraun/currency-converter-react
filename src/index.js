@@ -9,11 +9,17 @@ import thunk from 'redux-thunk';
 import { createLogger } from 'redux-logger';
 import reducer from './store/reducers.js';
 
+//router
+
+// import { HashRouter } from 'react-router-dom';
+
 //styles
 
 import './styles/index.scss';
 
-import App from './App';
+// import App from './App';
+
+import Root from './Root';
 
 const middleware = [thunk];
 
@@ -28,8 +34,9 @@ const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
 const store = createStore(reducer, composeEnhancers(applyMiddleware(...middleware)));
 
 ReactDOM.render(
-  <Provider store={store}>
-    <App />
-  </Provider>,
+  // <Provider store={store}>
+  //   <App />
+  // </Provider>,
+  <Root store={store} />,
   document.getElementById('root')
 );
