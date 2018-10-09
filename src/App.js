@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { alertText, getData } from './store/actions.js';
+import { alertText, getData, getGeolocationData } from './store/actions.js';
 import { Route } from 'react-router-dom';
 
 //components
@@ -26,7 +26,8 @@ class App extends Component {
     super(props);
     this.state = {
       date: new Date(),
-      billy: 'wassup'
+      billy: 'wassup',
+      to: ''
     };
     // this.handleClick = this.handleClick.bind(this);
   }
@@ -35,10 +36,23 @@ class App extends Component {
     // dispatch(fetchPostsIfNeeded(selectedSubreddit));
     // const { dispatch } = this.props;
     this.props.alertText('MOUTNED');
+
+    let geoLocated = localStorage.getItem('currency_code') != null ? true : false;
+
+    if (!geoLocated) {
+      this.geoLocate();
+    }
   }
   handleClick = () => {
     this.props.alertText('wassup to');
-    this.props.getData();
+    this.props.getData(this.props.countryCode);
+  };
+  geoLocate = () => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(position => {
+        this.props.getGeolocationData(position.coords);
+      });
+    }
   };
   render() {
     return (
@@ -58,6 +72,7 @@ class App extends Component {
 
 const mapDispatchToProps = {
   getData,
+  getGeolocationData,
   alertText: value => alertText(value)
 };
 
@@ -68,11 +83,12 @@ const mapStateToProps = state => {
   //   items: []
   // };
 
-  const { posts } = state;
+  const { posts, countryCode } = state;
 
   return {
     // selectedSubreddit,
-    posts
+    posts,
+    countryCode
     // isFetching,
     // lastUpdated
   };

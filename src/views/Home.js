@@ -5,10 +5,10 @@ import { alertText, getData } from '../store/actions.js';
 
 //components
 
-import Functional from '../components/Functional';
+// import Functional from '../components/Functional';
 
 //assets
-import logo from '../assets/images/logo.svg';
+// import logo from '../assets/images/logo.svg';
 // import '../App.scss';
 
 class Home extends Component {

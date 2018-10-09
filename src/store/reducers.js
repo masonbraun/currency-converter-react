@@ -19,6 +19,15 @@ const currency = (state = {}, action) => {
   }
 };
 
+const countryCode = (state = localStorage.getItem('currency_code'), action) => {
+  switch (action.type) {
+    case 'UPDATE_COUNTRY_CODE':
+      return action.countryCode;
+    default:
+      return state;
+  }
+};
+
 const posts = (
   state = {
     isFetching: false,
@@ -73,7 +82,8 @@ const rootReducer = combineReducers({
   // fuckingState
   posts,
   text,
-  currency
+  currency,
+  countryCode
 });
 
 export default rootReducer;
