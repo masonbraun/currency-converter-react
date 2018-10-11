@@ -1,46 +1,95 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { alertText, getData } from '../store/actions.js';
-
-//components
-
+import axios from 'axios';
+import { alertText, getData, getGeolocationData } from '../store/actions.js';
 // import Functional from '../components/Functional';
+// import InputNumber from '../components/InputNumber';
 
-//assets
-// import logo from '../assets/images/logo.svg';
-// import '../App.scss';
+import FormSelect from '../components/FormSelect';
+import CurrencyConverter from '../components/CurrencyConverter';
 
 class Home extends Component {
   static propTypes = {
-    posts: PropTypes.object.isRequired
+    countryCode: PropTypes.string.isRequired
     // dispatch: PropTypes.func.isRequired
   };
   constructor(props) {
     super(props);
     this.state = {
-      date: new Date(),
-      billy: 'wassup'
+      from: 'GBP',
+      to: '',
+      value: '',
+      rates: {},
+      person: 'Mason'
     };
-    // this.handleClick = this.handleClick.bind(this);
   }
   componentDidMount() {
-    // const { dispatch, selectedSubreddit } = this.props;
-    // dispatch(fetchPostsIfNeeded(selectedSubreddit));
-    // const { dispatch } = this.props;
-    this.props.alertText('MOUTNED');
+    let geoLocated = localStorage.getItem('currency_code') != null ? true : false;
+
+    if (!geoLocated) {
+      this.geoLocate();
+    }
+
+    this.getCurrentExchangeRates();
   }
   handleClick = () => {
     this.props.alertText('wassup to');
-    this.props.getData();
+    this.props.getData(this.props.countryCode);
+  };
+  geoLocate = () => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(position => {
+        this.props.getGeolocationData(position.coords);
+      });
+    }
+  };
+  // handleChange = (event, key) => {
+  //   this.setState({
+  //     [key]: event.target.value
+  //   });
+  // };
+  handleChange = event => {
+    this.setState({
+      [event.target.name]: event.target.value
+    });
+  };
+  getCurrentExchangeRates = () => {
+    axios
+      .get(`https://frankfurter.app/latest`)
+      .then(response => {
+        this.setState({
+          rates: response.data.rates,
+          to: this.props.countryCode
+        });
+      })
+      .catch(error => error);
   };
   render() {
-    return <section className="home">HOME VIEW</section>;
+    return (
+      <section className="view">
+        <div className="field">
+          <form>
+            <FormSelect
+              options={this.state.rates}
+              handleChange={this.handleChange}
+              value={this.state.from}
+              label="Base Currency"
+              name="baseCurrency"
+            />
+            <p>{this.state.from}</p>
+            {/* <InputNumber onChange={e => this.handleChange(e, 'from')} name="from" />
+            <InputNumber onChange={e => this.handleChange(e, 'to')} name="to" /> */}
+          </form>
+        </div>
+      </section>
+    );
   }
 }
 
 const mapDispatchToProps = {
   getData,
+  getGeolocationData,
   alertText: value => alertText(value)
 };
 
@@ -51,11 +100,11 @@ const mapStateToProps = state => {
   //   items: []
   // };
 
-  const { posts } = state;
+  const { countryCode } = state;
 
   return {
     // selectedSubreddit,
-    posts
+    countryCode
     // isFetching,
     // lastUpdated
   };
