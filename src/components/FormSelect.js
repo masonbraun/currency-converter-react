@@ -4,13 +4,19 @@ import PropTypes from 'prop-types';
 const FormSelect = ({ value, handleChange, options, name, label }) => {
   return (
     <div className="field">
-      <label htmlFor="baseCurrency">{label}</label>
-      <select id="baseCurrency" value={value} onChange={handleChange} name={name}>
-        {Object.keys(options).map(option => (
-          <option key={option} value={option}>
-            {option}
-          </option>
-        ))}
+      <label htmlFor={name}>{label}</label>
+      <select id={name} value={value} onChange={handleChange} name={name}>
+        <option value="" disabled>
+          --Select Currency--
+        </option>
+        {Object.keys(options).map(option => {
+          console.log(option);
+          return (
+            <option key={option} value={option}>
+              {option}
+            </option>
+          );
+        })}
       </select>
     </div>
   );

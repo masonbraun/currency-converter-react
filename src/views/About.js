@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { alertText, getData } from '../store/actions.js';
+import { alertText, getData, getLatestExchangeRates } from '../store/actions.js';
 
 //components
 
@@ -26,7 +26,7 @@ class About extends Component {
   }
   handleClick = () => {
     this.props.alertText('wassup to');
-    this.props.getData();
+    getLatestExchangeRates();
   };
   render() {
     return <section className="about">ABOUT VIEW</section>;
@@ -34,7 +34,7 @@ class About extends Component {
 }
 
 const mapDispatchToProps = {
-  getData,
+  getLatestExchangeRates,
   alertText: value => alertText(value)
 };
 

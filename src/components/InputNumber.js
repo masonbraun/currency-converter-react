@@ -1,16 +1,16 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-const InputNumber = ({ onChange, name }) => {
+const InputNumber = ({ handleChange, name }) => {
   return (
     <div>
-      <input type="number" name={name} onChange={onChange} />
+      <input type="number" name={name} onChange={handleChange} />
     </div>
   );
 };
 
 InputNumber.propTypes = {
-  onChange: PropTypes.func.isRequired,
+  handleChange: PropTypes.func.isRequired,
   name: PropTypes.string.isRequired
 };
 

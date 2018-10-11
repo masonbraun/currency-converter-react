@@ -2,95 +2,130 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import axios from 'axios';
-import { alertText, getData, getGeolocationData } from '../store/actions.js';
-// import Functional from '../components/Functional';
-// import InputNumber from '../components/InputNumber';
+import { getLatestExchangeRates, getGeolocationData } from '../store/actions.js';
 
 import FormSelect from '../components/FormSelect';
+import InputNumber from '../components/InputNumber';
+
 import CurrencyConverter from '../components/CurrencyConverter';
 
 class Home extends Component {
   static propTypes = {
-    countryCode: PropTypes.string.isRequired
+    // countryCode: PropTypes.string.isRequired
     // dispatch: PropTypes.func.isRequired
   };
   constructor(props) {
     super(props);
     this.state = {
-      from: 'GBP',
-      to: '',
-      value: '',
+      fromCurrency: '',
+      toCurrency: '',
       rates: {},
-      person: 'Mason'
+      fetching: true,
+      value: '0'
     };
   }
   componentDidMount() {
-    let geoLocated = localStorage.getItem('currency_code') != null ? true : false;
+    //check to see if the user has already been geolocated
+    let geoLocated = localStorage.getItem('currencyCode') != null ? true : false;
 
+    //if not locate them
     if (!geoLocated) {
+      alert('DO SOME GEOLOCATING');
       this.geoLocate();
+    } else {
+      this.setState({
+        toCurrency: localStorage.getItem('currencyCode'),
+        fetching: false
+      });
     }
 
-    this.getCurrentExchangeRates();
+    //get the exchange rates from the API
+    this.props.getLatestExchangeRates().then(response => {
+      //set the default rate
+      response.rates['EUR'] = 1;
+      this.setState({
+        rates: response.rates
+      });
+    });
   }
   handleClick = () => {
     this.props.alertText('wassup to');
-    this.props.getData(this.props.countryCode);
+    // this.props.getData(this.props.countryCode);
   };
   geoLocate = () => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(position => {
-        this.props.getGeolocationData(position.coords);
+        this.props.getGeolocationData(position.coords).then(response => {
+          localStorage.setItem('currencyCode', response);
+          this.setState({
+            toCurrency: response,
+            fetching: false
+          });
+        });
       });
+    } else {
+      alert('BROWSER GEOLOCATION DISABLED');
     }
   };
-  // handleChange = (event, key) => {
-  //   this.setState({
-  //     [key]: event.target.value
-  //   });
-  // };
   handleChange = event => {
     this.setState({
       [event.target.name]: event.target.value
     });
   };
-  getCurrentExchangeRates = () => {
-    axios
-      .get(`https://frankfurter.app/latest`)
-      .then(response => {
-        this.setState({
-          rates: response.data.rates,
-          to: this.props.countryCode
-        });
-      })
-      .catch(error => error);
-  };
+
+  //computed property
+  get computedProp() {
+    return Object.keys(this.state.rates).map(option => option);
+  }
+
+  get finalRates() {
+    let baseExchange = 1 / this.state.rates[this.state.fromCurrency];
+    let rates = {};
+    for (var key in this.state.rates) {
+      rates[key] = this.state.rates[key] * baseExchange;
+    }
+    return rates;
+  }
+
   render() {
     return (
-      <section className="view">
-        <div className="field">
-          <form>
-            <FormSelect
-              options={this.state.rates}
-              handleChange={this.handleChange}
-              value={this.state.from}
-              label="Base Currency"
-              name="baseCurrency"
-            />
-            <p>{this.state.from}</p>
-            {/* <InputNumber onChange={e => this.handleChange(e, 'from')} name="from" />
-            <InputNumber onChange={e => this.handleChange(e, 'to')} name="to" /> */}
-          </form>
-        </div>
+      <section className="view view--home">
+        <h1>{parseFloat(this.state.value * this.finalRates[this.state.toCurrency]).toFixed(2)}</h1>
+        <form>
+          <FormSelect
+            options={this.state.rates}
+            handleChange={this.handleChange}
+            value={this.state.fromCurrency}
+            label="From Currency"
+            name="fromCurrency"
+          />
+
+          <p>asdfsdf {this.computedProp[0]}</p>
+
+          {!this.state.toCurrency == '' && (
+            <div>
+              <p>NOT FETCHING</p>
+              <FormSelect
+                options={this.state.rates}
+                handleChange={this.handleChange}
+                value={this.state.toCurrency}
+                label="To Currency"
+                name="toCurrency"
+              />
+            </div>
+          )}
+
+          <InputNumber handleChange={this.handleChange} name="value" />
+        </form>
       </section>
     );
   }
 }
 
 const mapDispatchToProps = {
-  getData,
-  getGeolocationData,
-  alertText: value => alertText(value)
+  getLatestExchangeRates,
+  getGeolocationData
+  // alertText: value => alertText(value)
 };
 
 const mapStateToProps = state => {
@@ -104,7 +139,7 @@ const mapStateToProps = state => {
 
   return {
     // selectedSubreddit,
-    countryCode
+    // countryCode
     // isFetching,
     // lastUpdated
   };

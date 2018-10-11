@@ -9,7 +9,7 @@ import './styles/app.scss';
 
 class App extends Component {
   static propTypes = {
-    countryCode: PropTypes.string.isRequired
+    // countryCode: PropTypes.string.isRequired
   };
   constructor(props) {
     super(props);
