@@ -18,3 +18,38 @@
   margin: 0 auto;
   font-family: var(--roboto);
 }
+
+input[type='number']::-webkit-inner-spin-button,
+input[type='number']::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.radio-button {
+  border: solid 1px red;
+  width: 100px;
+
+  label {
+    border: solid 1px red;
+    cursor: pointer;
+    padding: 20px;
+    display: block;
+    width: 100%;
+  }
+
+  input {
+    width: 0;
+    height: 0;
+    display: none;
+  }
+
+  input:checked + label {
+    background-color: red;
+    color: #fff;
+  }
+}
+
+.result {
+  font-size: 80px;
+  font-weight: bold;
+}

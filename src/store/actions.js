@@ -20,10 +20,13 @@ export const updateCountryCode = countryCode => ({
 //GENERIC ASYNC ACTION
 
 export const getLatestExchangeRates = () => () => {
-  return axios
-    .get(`https://frankfurter.app/latest`)
-    .then(response => response.data)
-    .catch(error => error);
+  return (
+    axios
+      // .get(`https://frankfurter.app/latest`)
+      .get('http://data.fixer.io/api/latest?access_key=c20ae1f1b301c7010b699797fe11c3ae&symbols=USD,CAD,GBP,EUR,JPY,AUD')
+      .then(response => response.data)
+      .catch(error => error)
+  );
 };
 
 export const getGeolocationData = coords => dispatch => {
@@ -34,11 +37,9 @@ export const getGeolocationData = coords => dispatch => {
       }&sensor=false&key=AIzaSyDYYRZINtZFs3LuhEN_1RXYj5MutQFizO0`
     )
     .then(response => {
-      let countryCode =
-        response.data.results[response.data.results.length - 1].address_components[0].short_name;
+      let countryCode = response.data.results[response.data.results.length - 1].address_components[0].short_name;
       let currencyCode = _.find(codes, { code: countryCode }).currency_code;
       return currencyCode;
-      // localStorage.setItem('currency_code', currencyCode);
     })
     .catch(error => error);
 };

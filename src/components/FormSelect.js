@@ -9,14 +9,11 @@ const FormSelect = ({ value, handleChange, options, name, label }) => {
         <option value="" disabled>
           --Select Currency--
         </option>
-        {Object.keys(options).map(option => {
-          console.log(option);
-          return (
-            <option key={option} value={option}>
-              {option}
-            </option>
-          );
-        })}
+        {Object.keys(options).map(option => (
+          <option key={option} value={option}>
+            {option}
+          </option>
+        ))}
       </select>
     </div>
   );

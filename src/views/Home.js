@@ -3,25 +3,29 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import axios from 'axios';
 import { getLatestExchangeRates, getGeolocationData } from '../store/actions.js';
+import _ from 'lodash';
+import format from 'format-number';
+import { codes } from '../assets/data/codes';
 
 import FormSelect from '../components/FormSelect';
 import InputNumber from '../components/InputNumber';
+import InputRadio from '../components/InputRadio';
+
+import Loader from '../components/Loader';
 
 import CurrencyConverter from '../components/CurrencyConverter';
 
 class Home extends Component {
-  static propTypes = {
-    // countryCode: PropTypes.string.isRequired
-    // dispatch: PropTypes.func.isRequired
-  };
+  static propTypes = {};
   constructor(props) {
     super(props);
     this.state = {
-      fromCurrency: '',
+      fromCurrency: 'GBP',
       toCurrency: '',
       rates: {},
       fetching: true,
-      value: '0'
+      value: '1',
+      fee: localStorage.getItem('FXFee') != null ? localStorage.getItem('FXFee') : '1'
     };
   }
   componentDidMount() {
@@ -30,7 +34,7 @@ class Home extends Component {
 
     //if not locate them
     if (!geoLocated) {
-      alert('DO SOME GEOLOCATING');
+      // alert('DO SOME GEOLOCATING');
       this.geoLocate();
     } else {
       this.setState({
@@ -41,6 +45,7 @@ class Home extends Component {
 
     //get the exchange rates from the API
     this.props.getLatestExchangeRates().then(response => {
+      console.log(response);
       //set the default rate
       response.rates['EUR'] = 1;
       this.setState({
@@ -48,10 +53,7 @@ class Home extends Component {
       });
     });
   }
-  handleClick = () => {
-    this.props.alertText('wassup to');
-    // this.props.getData(this.props.countryCode);
-  };
+
   geoLocate = () => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(position => {
@@ -73,9 +75,53 @@ class Home extends Component {
     });
   };
 
-  //computed property
-  get computedProp() {
-    return Object.keys(this.state.rates).map(option => option);
+  updateFee = e => {
+    this.handleChange(e);
+    localStorage.setItem('FXFee', e.target.value);
+  };
+
+  swapCurrencies = e => {
+    e.preventDefault();
+    this.setState({
+      toCurrency: this.state.fromCurrency,
+      fromCurrency: this.state.toCurrency
+    });
+  };
+
+  formatNumber = value => {
+    const options = {
+      prefix: this.toCountry.currency_symbol,
+      suffix: '',
+      round: 2,
+      padRight: 2,
+      integerSeparator: ',',
+      decimal: '.'
+    };
+
+    if (this.state.toCurrency == 'EUR') {
+      options.integerSeparator = '.';
+      options.decimal = ',';
+    }
+
+    if (this.state.toCurrency == 'JPY') {
+      options.round = 0;
+      options.padRight = 0;
+    }
+
+    return format(options)(value);
+
+    // return new Intl.NumberFormat('de-DE', {
+    //   style: 'currency',
+    //   currency: this.state.toCurrency
+    // }).format(value);
+  };
+
+  get toCountry() {
+    return _.find(codes, { currency_code: this.state.toCurrency });
+  }
+
+  get fromCountry() {
+    return _.find(codes, { currency_code: this.state.fromCurrency });
   }
 
   get finalRates() {
@@ -87,36 +133,64 @@ class Home extends Component {
     return rates;
   }
 
+  get finalNumber() {
+    return this.state.value * this.finalRates[this.state.toCurrency] * this.state.fee;
+  }
+
   render() {
     return (
       <section className="view view--home">
-        <h1>{parseFloat(this.state.value * this.finalRates[this.state.toCurrency]).toFixed(2)}</h1>
-        <form>
-          <FormSelect
-            options={this.state.rates}
-            handleChange={this.handleChange}
-            value={this.state.fromCurrency}
-            label="From Currency"
-            name="fromCurrency"
-          />
+        {this.state.fetching && <Loader />}
+        {!this.state.fetching && (
+          <form>
+            <FormSelect
+              options={this.state.rates}
+              handleChange={this.handleChange}
+              value={this.state.fromCurrency}
+              label="From Currency"
+              name="fromCurrency"
+            />
+            <FormSelect
+              options={this.state.rates}
+              handleChange={this.handleChange}
+              value={this.state.toCurrency}
+              label="To Currency"
+              name="toCurrency"
+            />
+            <InputNumber handleChange={this.handleChange} name="value" value={this.state.value} />
+            <p className="result">{this.formatNumber(this.finalNumber)}</p>
 
-          <p>asdfsdf {this.computedProp[0]}</p>
+            <button
+              onClick={e => {
+                this.swapCurrencies(e);
+              }}
+            >
+              SWAP CURRENCIES
+            </button>
 
-          {!this.state.toCurrency == '' && (
-            <div>
-              <p>NOT FETCHING</p>
-              <FormSelect
-                options={this.state.rates}
-                handleChange={this.handleChange}
-                value={this.state.toCurrency}
-                label="To Currency"
-                name="toCurrency"
-              />
+            <div className="field">
+              <InputRadio id="zero" value="1" label="0%" fee={this.state.fee} handleChange={this.updateFee} />
+              <InputRadio id="zero-five" value="1.005" fee={this.state.fee} label="0.5%" handleChange={this.updateFee} />
+              <InputRadio id="one" value="1.01" fee={this.state.fee} label="0.1%" handleChange={this.updateFee} />
+              <InputRadio id="one-five" value="1.015" fee={this.state.fee} label="0.15%" handleChange={this.updateFee} />
+              <InputRadio id="two" value="1.02" fee={this.state.fee} label="0.2%" handleChange={this.updateFee} />
+              <InputRadio id="two-five" value="1.025" fee={this.state.fee} label="0.25%" handleChange={this.updateFee} />
+
+              <div className="radio-button">
+                <input id="other" type="radio" name="fee" value="" />
+                <label htmlFor="other">Other</label>
+              </div>
             </div>
-          )}
 
-          <InputNumber handleChange={this.handleChange} name="value" />
-        </form>
+            {/* {!_.isEmpty(this.finalRates) && (
+              // <h1>
+              //   {this.toCountry.currency_symbol}
+              //   {parseFloat(this.state.value * this.finalRates[this.state.toCurrency])}
+              // </h1>
+              
+            )} */}
+          </form>
+        )}
       </section>
     );
   }
@@ -129,12 +203,6 @@ const mapDispatchToProps = {
 };
 
 const mapStateToProps = state => {
-  // const { selectedSubreddit, postsBySubreddit } = state;
-  // const { isFetching, lastUpdated, items: posts } = postsBySubreddit[selectedSubreddit] || {
-  //   isFetching: true,
-  //   items: []
-  // };
-
   const { countryCode } = state;
 
   return {
