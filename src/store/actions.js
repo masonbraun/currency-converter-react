@@ -37,6 +37,7 @@ export const getGeolocationData = coords => dispatch => {
       }&sensor=false&key=AIzaSyDYYRZINtZFs3LuhEN_1RXYj5MutQFizO0`
     )
     .then(response => {
+      console.log(response);
       let countryCode = response.data.results[response.data.results.length - 1].address_components[0].short_name;
       let currencyCode = _.find(codes, { code: countryCode }).currency_code;
       return currencyCode;

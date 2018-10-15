@@ -11,9 +11,12 @@ import FormSelect from '../components/FormSelect';
 import InputNumber from '../components/InputNumber';
 import InputRadio from '../components/InputRadio';
 
+import ButtonCopyToClipboard from '../components/ButtonCopyToClipboard';
+
 import Loader from '../components/Loader';
 
 import CurrencyConverter from '../components/CurrencyConverter';
+import ClipboardJS from 'clipboard';
 
 class Home extends Component {
   static propTypes = {};
@@ -40,6 +43,24 @@ class Home extends Component {
       this.setState({
         toCurrency: localStorage.getItem('currencyCode'),
         fetching: false
+      });
+
+      const clipboard = new ClipboardJS('.btn');
+
+      console.log(clipboard);
+
+      clipboard.on('success', function(e) {
+        console.info('Action:', e.action);
+        console.info('Text:', e.text);
+        console.info('Trigger:', e.trigger);
+        alert('success show succdess thing');
+
+        e.clearSelection();
+      });
+
+      clipboard.on('error', function(e) {
+        console.error('Action:', e.action);
+        console.error('Trigger:', e.trigger);
       });
     }
 
@@ -75,6 +96,15 @@ class Home extends Component {
     });
   };
 
+  reset = () => {
+    localStorage.clear();
+    this.setState({
+      fee: '1',
+      toCurrency: '',
+      fromCurrency: ''
+    });
+  };
+
   updateFee = e => {
     this.handleChange(e);
     localStorage.setItem('FXFee', e.target.value);
@@ -89,6 +119,9 @@ class Home extends Component {
   };
 
   formatNumber = value => {
+    console.log(navigator.languages);
+    console.log(navigator.languages[0]);
+
     const options = {
       prefix: this.toCountry.currency_symbol,
       suffix: '',
@@ -108,12 +141,20 @@ class Home extends Component {
       options.padRight = 0;
     }
 
-    return format(options)(value);
+    if (isNaN(parseFloat(value))) {
+      return '0';
+    }
 
-    // return new Intl.NumberFormat('de-DE', {
-    //   style: 'currency',
-    //   currency: this.state.toCurrency
-    // }).format(value);
+    // return format(options)(value);
+
+    console.log(value);
+
+    return new Intl.NumberFormat(navigator.languages, {
+      style: 'currency',
+      currencyDisplay: 'symbol',
+      useGrouping: true,
+      currency: this.state.toCurrency
+    }).format(value);
   };
 
   get toCountry() {
@@ -158,6 +199,7 @@ class Home extends Component {
               name="toCurrency"
             />
             <InputNumber handleChange={this.handleChange} name="value" value={this.state.value} />
+
             <p className="result">{this.formatNumber(this.finalNumber)}</p>
 
             <button
@@ -182,6 +224,8 @@ class Home extends Component {
               </div>
             </div>
 
+            <div id="foo">POOPRRRS</div>
+
             {/* {!_.isEmpty(this.finalRates) && (
               // <h1>
               //   {this.toCountry.currency_symbol}
@@ -189,6 +233,15 @@ class Home extends Component {
               // </h1>
               
             )} */}
+
+            <button type="button" onClick={this.reset}>
+              RESET
+            </button>
+            <button className="btn" type="button" data-clipboard-text={this.finalNumber}>
+              COPY TO CLIPBOARD
+            </button>
+
+            <ButtonCopyToClipboard value={this.finalNumber} />
           </form>
         )}
       </section>

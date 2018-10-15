@@ -6,7 +6,7 @@ const Header = ({ onClick }) => {
   return (
     <header className="header">
       <h1 onClick={onClick}>
-        <img src={logo} className="App-logo" alt="logo" />
+        <img src={logo} className="App-logo" alt="logo" />A Better Currency Converter
       </h1>
       <nav className="navigation">
         <ul>
