@@ -43,6 +43,12 @@ input[type='number']::-webkit-outer-spin-button {
     display: none;
   }
 
+  .above {
+    width: auto;
+    height: auto;
+    display: block;
+  }
+
   input:checked + label {
     background-color: red;
     color: #fff;
@@ -52,4 +58,71 @@ input[type='number']::-webkit-outer-spin-button {
 .result {
   font-size: 80px;
   font-weight: bold;
+}
+
+.values {
+  border: solid 3px red;
+}
+
+.button {
+  display: block;
+  background: none;
+  padding: 0;
+  border: none;
+  cursor: pointer;
+
+  img {
+    width: 100px;
+    height: 100px;
+  }
+}
+
+.field {
+  margin-bottom: 20px;
+}
+
+input,
+select,
+button {
+  border: none;
+}
+
+.field--select {
+  position: relative;
+  width: 100%;
+
+  label {
+    display: none;
+    // position: absolute;
+    // top: 0;
+    // left: 0;
+  }
+
+  select {
+    width: 100%;
+    font-size: 20px;
+    // opacity: 0;
+    -webkit-appearance: none;
+    // border: none;
+    border: solid 3px purple;
+    border-radius: 0;
+    background-color: #fff;
+    padding: 20px;
+    cursor: pointer;
+  }
+}
+
+.field--number {
+  input {
+    width: 100%;
+
+    border: solid 3px purple;
+    padding: 20px;
+    font-size: 20px;
+  }
+}
+
+.field--radio {
+  display: flex;
+  justify-content: space-between;
 }

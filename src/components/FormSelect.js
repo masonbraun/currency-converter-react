@@ -1,9 +1,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-const FormSelect = ({ value, handleChange, options, name, label }) => {
+const FormSelect = ({ value, handleChange, options, name, label, children }) => {
   return (
-    <div className="field">
+    <div className="field field--select">
       <label htmlFor={name}>{label}</label>
       <select id={name} value={value} onChange={handleChange} name={name}>
         <option value="" disabled>
@@ -15,6 +15,7 @@ const FormSelect = ({ value, handleChange, options, name, label }) => {
           </option>
         ))}
       </select>
+      {children}
     </div>
   );
 };

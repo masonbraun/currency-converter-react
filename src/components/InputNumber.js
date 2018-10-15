@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 
 const InputNumber = ({ handleChange, name, value }) => {
   return (
-    <div>
+    <div className="field field--number">
       <input type="number" name={name} onChange={handleChange} value={value} />
     </div>
   );

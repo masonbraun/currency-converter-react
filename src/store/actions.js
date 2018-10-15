@@ -22,8 +22,8 @@ export const updateCountryCode = countryCode => ({
 export const getLatestExchangeRates = () => () => {
   return (
     axios
-      // .get(`https://frankfurter.app/latest`)
-      .get('http://data.fixer.io/api/latest?access_key=c20ae1f1b301c7010b699797fe11c3ae&symbols=USD,CAD,GBP,EUR,JPY,AUD')
+      .get(`https://frankfurter.app/latest`)
+      // .get('http://data.fixer.io/api/latest?access_key=c20ae1f1b301c7010b699797fe11c3ae&symbols=USD,CAD,GBP,EUR,JPY,AUD')
       .then(response => response.data)
       .catch(error => error)
   );

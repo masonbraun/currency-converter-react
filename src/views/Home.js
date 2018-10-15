@@ -1,30 +1,29 @@
+//dependencies
 import React, { Component } from 'react';
-import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import axios from 'axios';
-import { getLatestExchangeRates, getGeolocationData } from '../store/actions.js';
 import _ from 'lodash';
-import format from 'format-number';
-import { codes } from '../assets/data/codes';
+import ClipboardJS from 'clipboard';
+import { getLatestExchangeRates, getGeolocationData } from '../store/actions.js';
 
+//components
 import FormSelect from '../components/FormSelect';
 import InputNumber from '../components/InputNumber';
 import InputRadio from '../components/InputRadio';
-
 import ButtonCopyToClipboard from '../components/ButtonCopyToClipboard';
-
 import Loader from '../components/Loader';
 
-import CurrencyConverter from '../components/CurrencyConverter';
-import ClipboardJS from 'clipboard';
+//assets
+import { codes } from '../assets/data/codes';
+import geolocate from '../assets/images/geolocate.svg';
 
 class Home extends Component {
   static propTypes = {};
   constructor(props) {
     super(props);
     this.state = {
+      geoLocated: localStorage.getItem('currencyCode') != null ? true : false,
       fromCurrency: 'GBP',
-      toCurrency: '',
+      toCurrency: 'USD',
       rates: {},
       fetching: true,
       value: '1',
@@ -33,21 +32,39 @@ class Home extends Component {
   }
   componentDidMount() {
     //check to see if the user has already been geolocated
-    let geoLocated = localStorage.getItem('currencyCode') != null ? true : false;
+    // let geoLocated = localStorage.getItem('currencyCode') != null ? true : false;
 
     //if not locate them
-    if (!geoLocated) {
+    if (!this.state.geoLocated) {
       // alert('DO SOME GEOLOCATING');
-      this.geoLocate();
+      // this.geoLocate();
+      this.setState({
+        // toCurrency: '',
+        fetching: false
+      });
     } else {
       this.setState({
         toCurrency: localStorage.getItem('currencyCode'),
         fetching: false
       });
+    }
 
-      const clipboard = new ClipboardJS('.btn');
+    //get the exchange rates from the API
+    this.props.getLatestExchangeRates().then(response => {
+      console.log(response);
+      //set the default rate
+      response.rates['EUR'] = 1;
+      this.setState({
+        rates: response.rates
+      });
+    });
 
-      console.log(clipboard);
+    this.configureClipboard();
+  }
+
+  configureClipboard = () => {
+    if (ClipboardJS.isSupported()) {
+      const clipboard = new ClipboardJS('.button--copy');
 
       clipboard.on('success', function(e) {
         console.info('Action:', e.action);
@@ -63,33 +80,29 @@ class Home extends Component {
         console.error('Trigger:', e.trigger);
       });
     }
-
-    //get the exchange rates from the API
-    this.props.getLatestExchangeRates().then(response => {
-      console.log(response);
-      //set the default rate
-      response.rates['EUR'] = 1;
-      this.setState({
-        rates: response.rates
-      });
-    });
-  }
+  };
 
   geoLocate = () => {
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(position => {
-        this.props.getGeolocationData(position.coords).then(response => {
-          localStorage.setItem('currencyCode', response);
-          this.setState({
-            toCurrency: response,
-            fetching: false
+    if (!this.state.geoLocated) {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(position => {
+          this.props.getGeolocationData(position.coords).then(response => {
+            localStorage.setItem('currencyCode', response);
+            this.setState({
+              toCurrency: response,
+              fetching: false,
+              geoLocated: true
+            });
           });
         });
-      });
+      } else {
+        alert('BROWSER GEOLOCATION DISABLED');
+      }
     } else {
-      alert('BROWSER GEOLOCATION DISABLED');
+      alert('already geolocated, chill them out');
     }
   };
+
   handleChange = event => {
     this.setState({
       [event.target.name]: event.target.value
@@ -101,7 +114,8 @@ class Home extends Component {
     this.setState({
       fee: '1',
       toCurrency: '',
-      fromCurrency: ''
+      fromCurrency: '',
+      geoLocated: false
     });
   };
 
@@ -119,41 +133,43 @@ class Home extends Component {
   };
 
   formatNumber = value => {
-    console.log(navigator.languages);
-    console.log(navigator.languages[0]);
+    // console.log(navigator.languages);
+    // console.log(navigator.languages[0]);
 
-    const options = {
-      prefix: this.toCountry.currency_symbol,
-      suffix: '',
-      round: 2,
-      padRight: 2,
-      integerSeparator: ',',
-      decimal: '.'
-    };
+    // const options = {
+    //   prefix: this.toCountry.currency_symbol,
+    //   suffix: '',
+    //   round: 2,
+    //   padRight: 2,
+    //   integerSeparator: ',',
+    //   decimal: '.'
+    // };
 
-    if (this.state.toCurrency == 'EUR') {
-      options.integerSeparator = '.';
-      options.decimal = ',';
-    }
+    // if (this.state.toCurrency == 'EUR') {
+    //   options.integerSeparator = '.';
+    //   options.decimal = ',';
+    // }
 
-    if (this.state.toCurrency == 'JPY') {
-      options.round = 0;
-      options.padRight = 0;
-    }
+    // if (this.state.toCurrency == 'JPY') {
+    //   options.round = 0;
+    //   options.padRight = 0;
+    // }
 
-    if (isNaN(parseFloat(value))) {
-      return '0';
-    }
+    // if (isNaN(parseFloat(value))) {
+    //   return '1';
+    // }
 
     // return format(options)(value);
 
-    console.log(value);
+    // console.log(value);
+
+    // console.log(this.state.toCurrency);
 
     return new Intl.NumberFormat(navigator.languages, {
       style: 'currency',
       currencyDisplay: 'symbol',
       useGrouping: true,
-      currency: this.state.toCurrency
+      currency: 'CAD'
     }).format(value);
   };
 
@@ -175,8 +191,20 @@ class Home extends Component {
   }
 
   get finalNumber() {
+    let conversionRate = this.finalRates[this.state.toCurrency];
+
+    if (_.isNil(conversionRate)) {
+      return this.state.value;
+    }
+
     return this.state.value * this.finalRates[this.state.toCurrency] * this.state.fee;
   }
+
+  customFee = () => {
+    this.setState({
+      customFee: ''
+    });
+  };
 
   render() {
     return (
@@ -184,21 +212,30 @@ class Home extends Component {
         {this.state.fetching && <Loader />}
         {!this.state.fetching && (
           <form>
-            <FormSelect
-              options={this.state.rates}
-              handleChange={this.handleChange}
-              value={this.state.fromCurrency}
-              label="From Currency"
-              name="fromCurrency"
-            />
-            <FormSelect
-              options={this.state.rates}
-              handleChange={this.handleChange}
-              value={this.state.toCurrency}
-              label="To Currency"
-              name="toCurrency"
-            />
-            <InputNumber handleChange={this.handleChange} name="value" value={this.state.value} />
+            <section className="values">
+              <FormSelect
+                options={this.state.rates}
+                handleChange={this.handleChange}
+                value={this.state.fromCurrency}
+                label="From Currency"
+                name="fromCurrency"
+              />
+              <FormSelect
+                options={this.state.rates}
+                handleChange={this.handleChange}
+                value={this.state.toCurrency}
+                label="To Currency"
+                name="toCurrency"
+              >
+                {!this.state.geoLocated && (
+                  <button className="button button--geolocate" onClick={this.geoLocate} type="button">
+                    <img src={geolocate} alt="getlocate" />
+                  </button>
+                )}
+              </FormSelect>
+
+              <InputNumber handleChange={this.handleChange} name="value" value={this.state.value} />
+            </section>
 
             <p className="result">{this.formatNumber(this.finalNumber)}</p>
 
@@ -210,35 +247,22 @@ class Home extends Component {
               SWAP CURRENCIES
             </button>
 
-            <div className="field">
+            <div className="field field--radio">
               <InputRadio id="zero" value="1" label="0%" fee={this.state.fee} handleChange={this.updateFee} />
               <InputRadio id="zero-five" value="1.005" fee={this.state.fee} label="0.5%" handleChange={this.updateFee} />
               <InputRadio id="one" value="1.01" fee={this.state.fee} label="0.1%" handleChange={this.updateFee} />
               <InputRadio id="one-five" value="1.015" fee={this.state.fee} label="0.15%" handleChange={this.updateFee} />
               <InputRadio id="two" value="1.02" fee={this.state.fee} label="0.2%" handleChange={this.updateFee} />
               <InputRadio id="two-five" value="1.025" fee={this.state.fee} label="0.25%" handleChange={this.updateFee} />
-
               <div className="radio-button">
-                <input id="other" type="radio" name="fee" value="" />
+                <input id="other" type="radio" name="fee" value="" onClick={this.customFee} />
+                {_.has(this.state, 'customFee') && <input className="above" name="customFee" type="text" onChange={e => this.handleChange(e)} />}
                 <label htmlFor="other">Other</label>
               </div>
             </div>
 
-            <div id="foo">POOPRRRS</div>
-
-            {/* {!_.isEmpty(this.finalRates) && (
-              // <h1>
-              //   {this.toCountry.currency_symbol}
-              //   {parseFloat(this.state.value * this.finalRates[this.state.toCurrency])}
-              // </h1>
-              
-            )} */}
-
-            <button type="button" onClick={this.reset}>
+            <button className="button" type="button" onClick={this.reset}>
               RESET
-            </button>
-            <button className="btn" type="button" data-clipboard-text={this.finalNumber}>
-              COPY TO CLIPBOARD
             </button>
 
             <ButtonCopyToClipboard value={this.finalNumber} />
